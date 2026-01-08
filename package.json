@@ -54,6 +54,7 @@
     "@dcloudio/uni-mp-xhs": "3.0.0-4080420251103001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-4080420251103001",
     "@dcloudio/uni-ui": "^1.5.11",
+    "@vue/devtools-api": "^8.0.5",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",
     "sass-loader": "~8.0.2",
