@@ -61,6 +61,17 @@
       }
     ]
   }
+
+  // 地理位置
+  uni.getLocation({
+    type: 'gcj02', // 必须使用 gcj02
+    isHighAccuracy: true, // 开启高精度
+    success: (res) => {
+      latitude.value = res.latitude
+      longitude.value = res.longitude
+      fetchMarkers()
+    }
+  })
   
   const onMarkerTap = (e: any) => {
     // 根据 ID 获取详情并赋值给 activeItem
