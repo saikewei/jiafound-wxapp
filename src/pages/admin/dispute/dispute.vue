@@ -286,7 +286,8 @@ const selectTicket = async (item: DisputeListItem) => {
       method: 'GET'
     })
 
-    const resData = response.data as ApiResponse
+    const resData = response as ApiResponse
+    console.log('工单详情响应数据:', response)
 
     if (resData.code === 200) {
       selectedTicket.value = resData.data
@@ -379,7 +380,7 @@ const submitRuling = async () => {
           })
 
           uni.hideLoading()
-          const resData = response.data as ApiResponse
+          const resData = response as ApiResponse
 
           if (resData.code === 200) {
             uni.showToast({
@@ -441,7 +442,8 @@ const loadDisputeList = async () => {
       data: requestData
     })
 
-    const resData = response.data as ApiResponse
+    const resData = response as ApiResponse
+    console.log('纠纷列表响应数据:', response)
 
     if (resData.code === 200) {
       disputeList.value = resData.data.list || []
@@ -490,9 +492,9 @@ const updateTabCounts = async () => {
       data: { page: 1 }
     })
 
-    const reviewingData = reviewingRes.data as ApiResponse
-    const closedData = closedRes.data as ApiResponse
-    const allData = allRes.data as ApiResponse
+    const reviewingData = reviewingRes as ApiResponse
+    const closedData = closedRes as ApiResponse
+    const allData = allRes as ApiResponse
 
     if (reviewingData.code === 200) {
       tabs.value[0].count = reviewingData.data.total || 0

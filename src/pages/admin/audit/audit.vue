@@ -117,7 +117,8 @@ const loadAuditList = async (page: number = 1) => {
       }
     })
 
-    const resData = response.data as ApiResponse
+    const resData = response as ApiResponse
+    console.log('审核列表响应数据:', response)
 
     if (resData.code === 200) {
       const result = resData.data as AuditPageResult
@@ -186,7 +187,7 @@ const submitAudit = async (itemID: string, decision: string) => {
     })
 
     uni.hideLoading()
-    const resData = response.data as ApiResponse
+    const resData = response as ApiResponse
 
     if (resData.code === 200) {
       uni.showToast({

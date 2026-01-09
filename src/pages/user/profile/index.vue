@@ -80,7 +80,7 @@
       <view 
         v-if="userStore.userInfo?.roleType === 'Admin'" 
         class="menu-item admin-menu" 
-        @click="handleNavigation('/pages/dispute/myDisputes')"
+        @click="handleNavigation('/pages/admin/dispute/dispute')"
       >
         <view class="menu-left">
           <text class="menu-icon">🛡️</text>

@@ -45,9 +45,14 @@ class Http {
       })
     }
 
+    // 判断是否为完整URL（包含http或https）
+    const finalUrl = url.startsWith('http://') || url.startsWith('https://')
+      ? url
+      : BASE_URL + url
+
     return new Promise((resolve, reject) => {
       uni.request({
-        url: BASE_URL + url,
+        url: finalUrl,
         method,
         data,
         header: this.getHeaders(header),
