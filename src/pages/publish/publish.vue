@@ -92,42 +92,53 @@ onLoad((options: any) => {
   
   const saveDraft = () => uni.setStorageSync('publish_draft', formData)
 
-  const chooseImage = () => {
-    uni.chooseImage({
-      count: 1,
-      success: (res) => {
-        const tempFilePath = res.tempFilePaths[0];
-        formData.image = tempFilePath;
-        saveDraft();
-
-        // --- 新增 AI 识图逻辑 ---
-        uni.showLoading({ title: 'AI 正在分析图片...' });
-        
-        uni.uploadFile({
-          url: 'http://localhost:8084/item/analyze-image', // 后端识图接口
-          filePath: tempFilePath,
-          name: 'file',
-          success: (uploadRes) => {
-            const data = JSON.parse(uploadRes.data);
-            if (data.code === 200 && data.description) {
-              // 自动填充到物品名称（用户可微调）
-              formData.title = data.description;
-              uni.showToast({ title: 'AI 已生成描述', icon: 'none' });
-              saveDraft();
-            }
-          },
-          fail: () => {
-            uni.showToast({ title: 'AI 识图服务不可用', icon: 'none' });
-          },
-          complete: () => {
-            uni.hideLoading();
+// pages/publish/publish.vue
+const chooseImage = () => {
+  uni.chooseImage({
+    count: 1,
+    sizeType: ['compressed'],
+    success: (res) => {
+      const tempFilePath = res.tempFilePaths[0];
+      
+      // 立即展示本地预览，提升用户体验
+      formData.image = tempFilePath;
+      
+      uni.showLoading({ title: 'AI 分析并同步云端...', mask: true });
+      
+      uni.uploadFile({
+        url: 'http://localhost:8084/item/upload-and-analyze', // 调用新的复合接口
+        filePath: tempFilePath,
+        name: 'file',
+        success: (uploadRes) => {
+          if (!uploadRes.data) {
+            uni.showToast({ title: '服务器无响应', icon: 'none' });
+            return;
           }
-        });
-        // -----------------------
-      }
-    });
-  }
-
+          try {
+            const resData = JSON.parse(uploadRes.data);
+            if (resData.code === 200) {
+              // 核心：替换为云端 URL 并自动填充 AI 描述
+              formData.image = resData.data.url;           // 存入云端地址
+              formData.title = resData.data.description;   // 填充语义信息
+              
+              uni.showToast({ title: '智能识别成功', icon: 'success' });
+              saveDraft(); // 保存包含云 URL 的草稿
+            } else {
+              uni.showToast({ title: resData.msg || '处理失败', icon: 'none' });
+            }
+          } catch (e) {
+            console.error('解析异常', e);
+            uni.showToast({ title: '服务器返回格式错误', icon: 'none' });
+          }
+        },
+        fail: () => {
+          uni.showToast({ title: '网络请求失败', icon: 'none' });
+        },
+        complete: () => uni.hideLoading()
+      });
+    }
+  });
+};
   //获取地理位置
 
 const getLocation = () => {
