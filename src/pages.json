@@ -7,6 +7,14 @@
 		}
 	},
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+	{
+			"path": "pages/applyDispute",
+			"style": {
+				"navigationBarTitleText": "申请维权",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
 		{
 			"path": "pages/admin/audit/audit",
 			"style": {
@@ -29,6 +37,7 @@
 				"navigationBarTitleText": "uni-app"
 			}		
 		}
+		
 	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

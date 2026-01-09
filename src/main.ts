@@ -18,6 +18,21 @@ uni.addInterceptor('request', {
   }
 })
 
+// 添加 uploadFile 拦截器
+uni.addInterceptor('uploadFile', {
+  invoke(args) {
+    // 如果 url 不是以 http 开头,则拼接全局域名
+    if (!args.url.startsWith('http')) {
+      args.url = BASE_URL + args.url
+    }
+    
+    args.header = {
+      ...args.header,
+      'Authorization': 'Bearer ' + (uni.getStorageSync('token') || '')
+    }
+  }
+})
+
 export function createApp() {
   const app = createSSRApp(App);
   return {
