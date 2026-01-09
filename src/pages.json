@@ -73,7 +73,15 @@
 
     	{ "path": "pages/map/map" },
 
-		{ "path": "pages/list/list" }
+		{ "path": "pages/list/list" },
+
+		{
+			"path": "pages/item/detail",
+			"style": {
+			  "navigationBarTitleText": "物品详情",
+			  "enablePullDownRefresh": false
+			}
+		}
 	],
 	
 

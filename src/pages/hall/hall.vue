@@ -13,7 +13,7 @@
       </view>
   
       <scroll-view scroll-y class="list-scroll" @scrolltolower="loadMore">
-        <view class="item-card" v-for="item in displayList" :key="item.itemID">
+        <view class="item-card" v-for="item in displayList" :key="item.itemID" @tap="goToDetail(item.itemID)">
           <image :src="item.images && item.images.length > 0 ? item.images[0] : '/static/no-img.png'" 
           mode="aspectFill" 
           class="item-cover" />
@@ -39,11 +39,17 @@
   const currentTab = ref('全部')
   const allItems = ref<any[]>([]) // 初始化为空数组
   
+  const goToDetail = (id: string) => {
+  uni.navigateTo({
+    url: `/pages/item/detail?id=${id}` // 跳转到详情页并携带 ID
+  })
+}
+
   // 1. 页面挂载时调用加载
   onMounted(() => {
     loadData()
   })
-  
+ 
   // 2. 监听标签切换，自动重新加载真实数据
   const handleTabChange = (tab: string) => {
     currentTab.value = tab

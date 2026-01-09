@@ -40,8 +40,8 @@
       <button class="submit-btn" :loading="isSubmitting" @tap="handleSubmit">立即发布</button>
 
       <view v-if="matchResults && matchResults.length > 0" class="match-list">
-        <view class="match-title">匹配的类似物品：</view>
-        <view v-for="(item, index) in matchResults" :key="index" class="match-card">
+        <view class="match-title">✨ AI 为您找到高度疑似物品</view>
+        <view v-for="(item, index) in matchResults" :key="index" class="match-card" @tap="goToMatchDetail(matchItem.itemID)">
           <image :src="item.imageUrl || item.image" mode="aspectFill" class="match-img" />
           <view class="match-info">
             <text class="match-name">{{ item.title || item.description }}</text>
@@ -187,11 +187,14 @@ const getLocation = () => {
       },
       success: (res) => {
         if (res.data.code === 200) {
-          uni.showToast({ title: '发布成功', icon: 'success' });
-          // 将匹配结果显示在页面上，而不是跳转
-          if (res.data.match && res.data.data) {
-            // 如果后端返回的是单个对象，转为数组
-            matchResults.value = Array.isArray(res.data.data) ? res.data.data : [res.data.data];
+          if (res.data.match) {
+            // 【核心】保存匹配到的物品数据
+            matchItem.value = res.data.data;
+            uni.showToast({ title: '为您找到匹配物品！', icon: 'success' });
+          } else {
+            uni.showToast({ title: '发布成功', icon: 'success' });
+            // 如果没匹配到，延迟返回
+            setTimeout(() => uni.navigateBack(), 1500);
           }
         }
       },
@@ -203,6 +206,13 @@ const getLocation = () => {
       }
     });
   }
+
+  // 3. 点击跳转详情方法
+const goToMatchDetail = (id) => {
+  uni.navigateTo({
+    url: `/pages/item/detail?id=${id}`
+  });
+};
   </script>
   
   <style lang="scss" scoped>

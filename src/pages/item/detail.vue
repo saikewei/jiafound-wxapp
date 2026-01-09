@@ -530,11 +530,43 @@ onShow(() => {
 });
 
 onLoad((options) => {
-  if (options && options.itemID) {
-    item.value.itemID = options.itemID;
+  // 这里的 options.id 必须与跳转时的 ?id= 保持一致
+  if (options.id) {
+    console.log("正在请求物品详情，ID:", options.id);
+    loadItemDetail(options.id);
+  } else {
+    uni.showToast({ title: '参数错误', icon: 'none' });
   }
-  fetchDetail();
 });
+
+// src/pages/item/detail.vue
+
+const loadItemDetail = (id) => {
+  uni.showLoading({ title: '加载中...', mask: true });
+  
+  uni.request({
+    // 【修改点】将端口改为 8083，路径改为你在 ClaimController 定义的接口
+    url: `http://localhost:8083/claim/item-detail/${id}`, 
+    method: 'GET',
+    success: (res) => {
+      console.log("Claim服务器返回数据:", res.data);
+      if (res.data.code === 200) {
+        // 注意：确保后端返回的结构能对应上 itemDetail 的字段
+        itemDetail.value = res.data.data;
+      } else {
+        uni.showToast({ title: res.data.msg || '获取失败', icon: 'none' });
+      }
+    },
+    fail: (err) => {
+      console.error("请求8083失败:", err);
+      uni.showToast({ title: '无法连接认领服务器', icon: 'none' });
+    },
+    complete: () => {
+      uni.hideLoading();
+    }
+  });
+};
+
 </script>
 
 <style scoped>
