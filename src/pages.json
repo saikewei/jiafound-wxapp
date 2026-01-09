@@ -7,6 +7,46 @@
 	},
 	"pages": [
 		{
+				"path": "pages/admin/dispute/dispute",
+				"style": {
+					"navigationBarTitleText": "纠纷管理",
+					"navigationBarBackgroundColor": "#ffffff",
+					"navigationBarTextStyle": "black"
+				}		
+		},
+		{
+			"path": "pages/dispute/myDisputes",
+			"style": {
+				"navigationBarTitleText": "维权列表",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/dispute/disputeDetails",
+			"style": {
+				"navigationBarTitleText": "维权详情",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/dispute/applyDispute",
+			"style": {
+				"navigationBarTitleText": "申请维权",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
+			"path": "pages/admin/audit/audit",
+			"style": {
+				"navigationBarTitleText": "内容审核",
+				"navigationBarBackgroundColor": "#ffffff",
+				"navigationBarTextStyle": "black"
+			}
+		},
+		{
 			"path": "pages/index/index",
 			"style": {
 				"navigationBarTitleText": "嘉园拾遗"
