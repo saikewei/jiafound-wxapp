@@ -209,9 +209,8 @@ const canAddEvidence = computed(() => {
 
 // 判断是否可以撤销
 const canRevoke = computed(() => {
-  // 是发起人 且 状态为审核中或处理中
-  return isInitiator.value && 
-         (disputeDetail.value.status === 'Reviewing' || disputeDetail.value.status === 'Processing')
+  // 是发起人 且 状态为审核中
+  return isInitiator.value && disputeDetail.value.status === 'Reviewing'
 })
 
 onLoad((options: any) => {
@@ -266,24 +265,36 @@ const formatTime = (time: string) => {
 
 // 获取状态文本
 const getStatusText = (status: string) => {
+  if (status === 'Closed' && disputeDetail.value.rulingResult) {
+    if (disputeDetail.value.rulingResult === 'InitiatorWin') {
+      return isInitiator.value ? '已完成' : '已驳回'
+    } else if (disputeDetail.value.rulingResult === 'RespondentWin') {
+      return isInitiator.value ? '已驳回' : '已完成'
+    }
+  }
+  
   const statusMap: Record<string, string> = {
     'Reviewing': '审核中',
-    'Completed': '已完成',
-    'Rejected': '已驳回',
-    'Processing': '处理中',
-    'Revoked': '已撤销'
+    'Revoked': '已撤销',
+    'Closed': '已结束'
   }
   return statusMap[status] || status
 }
 
 // 获取状态样式类
 const getStatusClass = (status: string) => {
+  if (status === 'Closed' && disputeDetail.value.rulingResult) {
+    if (disputeDetail.value.rulingResult === 'InitiatorWin') {
+      return isInitiator.value ? 'completed' : 'rejected'
+    } else if (disputeDetail.value.rulingResult === 'RespondentWin') {
+      return isInitiator.value ? 'rejected' : 'completed'
+    }
+  }
+  
   const classMap: Record<string, string> = {
     'Reviewing': 'reviewing',
-    'Completed': 'completed',
-    'Rejected': 'rejected',
-    'Processing': 'processing',
-    'Revoked': 'revoked'
+    'Revoked': 'revoked',
+    'Closed': 'completed'
   }
   return classMap[status] || ''
 }

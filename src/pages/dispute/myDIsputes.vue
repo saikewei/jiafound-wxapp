@@ -20,8 +20,8 @@
           <view class="item-header">
             <view class="ticket-info">
               <text class="ticket-id">工单号: {{ item.ticketId.slice(0, 12) }}...</text>
-              <view :class="['status-badge', getStatusClass(item.status)]">
-                {{ getStatusText(item.status) }}
+              <view :class="['status-badge', getStatusClass(item.status, item.rulingResult, item.relationType)]">
+                {{ getStatusText(item.status, item.rulingResult, item.relationType) }}
               </view>
             </view>
             <view class="relation-type">
@@ -89,6 +89,7 @@ interface DisputeItem {
   relationType: string
   status: string
   ticketId: string
+  rulingResult: string | null
 }
 
 interface ApiResponse {
@@ -195,25 +196,41 @@ const formatTime = (time: string) => {
 }
 
 // 获取状态文本
-const getStatusText = (status: string) => {
+const getStatusText = (status: string, rulingResult: string | null = null, relationType: string = '') => {
+    console.log(status);
+    console.log(rulingResult);
+  if (status === 'Closed' && rulingResult) {
+    const isInitiator = relationType === 'Initiated by Me'
+    if (rulingResult === 'InitiatorWin') {
+      return isInitiator ? '已完成' : '已驳回'
+    } else if (rulingResult === 'RespondentWin') {
+      return isInitiator ? '已驳回' : '已完成'
+    }
+  }
+  
   const statusMap: Record<string, string> = {
     'Reviewing': '审核中',
-    'Completed': '已完成',
-    'Rejected': '已驳回',
-    'Processing': '处理中',
-    'Revoked': '已撤销'
+    'Revoked': '已撤销',
+    'Closed': '已结束'
   }
   return statusMap[status] || status
 }
 
 // 获取状态样式类
-const getStatusClass = (status: string) => {
+const getStatusClass = (status: string, rulingResult: string | null = null, relationType: string = '') => {
+  if (status === 'Closed' && rulingResult) {
+    const isInitiator = relationType === 'Initiated by Me'
+    if (rulingResult === 'InitiatorWin') {
+      return isInitiator ? 'completed' : 'rejected'
+    } else if (rulingResult === 'RespondentWin') {
+      return isInitiator ? 'rejected' : 'completed'
+    }
+  }
+  
   const classMap: Record<string, string> = {
     'Reviewing': 'reviewing',
-    'Completed': 'completed',
-    'Rejected': 'rejected',
-    'Processing': 'processing',
-    'Revoked': 'revoked'
+    'Revoked': 'revoked',
+    'Closed': 'completed'
   }
   return classMap[status] || ''
 }
@@ -283,11 +300,6 @@ const getStatusClass = (status: string) => {
           &.rejected {
             background-color: #ffebee;
             color: #f44336;
-          }
-          
-          &.processing {
-            background-color: #e3f2fd;
-            color: #2196f3;
           }
           
           &.revoked {
@@ -393,8 +405,6 @@ const getStatusClass = (status: string) => {
   
   .empty-text {
     margin-top: 30rpx;
-    font-size: 28rpx;
-    color: #999;
   }
 }
 </style>

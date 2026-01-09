@@ -7,7 +7,14 @@
 		}
 	},
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		
+		{
+				"path": "pages/admin/dispute/dispute",
+				"style": {
+					"navigationBarTitleText": "纠纷管理",
+					"navigationBarBackgroundColor": "#ffffff",
+					"navigationBarTextStyle": "black"
+				}		
+		},
 		{
 			"path": "pages/dispute/myDisputes",
 			"style": {
@@ -39,14 +46,6 @@
 				"navigationBarBackgroundColor": "#ffffff",
 				"navigationBarTextStyle": "black"
 			}
-		},
-		{
-				"path": "pages/admin/dispute/dispute",
-				"style": {
-					"navigationBarTitleText": "纠纷管理",
-					"navigationBarBackgroundColor": "#ffffff",
-					"navigationBarTextStyle": "black"
-				}		
 		},
 		{
 			"path": "pages/index/index",
