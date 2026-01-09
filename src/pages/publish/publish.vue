@@ -31,7 +31,7 @@
             <switch :checked="formData.rewardEnabled" @change="toggleReward" color="#007aff" />
           </view>
           <view v-if="formData.rewardEnabled" class="reward-input-box">
-            <input type="number" class="input" v-model="formData.rewardPoints" placeholder="输入悬赏积分" />
+            <input type="number" class="input" v-model.number="formData.rewardPoints" placeholder="输入悬赏积分" @input="saveDraft" />
             <text class="balance">当前余额: {{ userBalance }}</text>
           </view>
         </view>
@@ -55,10 +55,12 @@
   <script setup lang="ts">
   import { ref, reactive, onMounted } from 'vue'
   import { onLoad } from '@dcloudio/uni-app'
+  import { useUserStore } from '@/stores/user'
 
+  const userStore = useUserStore()
   const isLost = ref(true)
   const isSubmitting = ref(false)
-  const userBalance = ref(100) // 模拟余额
+  const userBalance = ref(0) // 用户真实余额
   const pageTitle = ref('发布寻物')
 
   // 接收首页传来的 type 参数
@@ -72,6 +74,9 @@ onLoad((options: any) => {
   }
   // 动态修改小程序页面顶部标题
   uni.setNavigationBarTitle({ title: pageTitle.value })
+
+  // 获取用户余额
+  fetchUserBalance()
 })
 
   const formData = reactive({
@@ -83,6 +88,15 @@ onLoad((options: any) => {
     rewardEnabled: false,
     rewardPoints: 0
   })
+
+  // 开关悬赏的回调
+  const toggleReward = (e: any) => {
+    formData.rewardEnabled = e.detail.value
+    if (!formData.rewardEnabled) {
+      formData.rewardPoints = 0
+    }
+    saveDraft()
+  }
   
   // 自动填充缓存（应对网络故障）
   onMounted(() => {
@@ -167,25 +181,79 @@ const getLocation = () => {
   
   const matchResults = ref([]); // 定义响应式数组
 
+  // 获取用户赏币余额
+  const fetchUserBalance = () => {
+    // 检查是否已登录
+    if (!userStore.token) {
+      uni.showToast({ title: '请先登录', icon: 'none' })
+      return
+    }
+
+    uni.request({
+      url: 'http://localhost:8085/user/profile',
+      method: 'GET',
+      header: {
+        'Authorization': `Bearer ${userStore.token}`
+      },
+      success: (res) => {
+        if (res.data.code === 200 && res.data.data) {
+          userBalance.value = res.data.data.coinBalance || 0
+        }
+      },
+      fail: (err) => {
+        console.error('获取余额失败:', err)
+        uni.showToast({ title: '获取余额失败', icon: 'none' })
+      }
+    })
+  }
+
   const handleSubmit = async () => {
-    // ... 校验代码 ...
+    // 登录校验
+    if (!userStore.isLoggedIn || !userStore.userInfo?.userId) {
+      uni.showToast({ title: '请先登录', icon: 'none' })
+      setTimeout(() => {
+        uni.navigateTo({ url: '/pages/user/login/index' })
+      }, 1500)
+      return
+    }
+
+    // 基本校验
+    if (!formData.title || !formData.location || !formData.image) {
+      uni.showToast({ title: '请填写完整信息', icon: 'none' })
+      return
+    }
+
+    // 悬赏校验
+    if (isLost.value && formData.rewardEnabled) {
+      const rewardAmount = Number(formData.rewardPoints)
+      if (!rewardAmount || rewardAmount <= 0) {
+        uni.showToast({ title: '请输入有效的悬赏额', icon: 'none' })
+        return
+      }
+      if (rewardAmount > userBalance.value) {
+        uni.showToast({ title: '悬赏额超过当前余额', icon: 'none' })
+        return
+      }
+    }
+
     isSubmitting.value = true;
     
     uni.request({
-      url: 'http://localhost:8084/item/publish', // 确保端口是 8084
+      url: 'http://localhost:8084/item/publish',
       method: 'POST',
       data: {
-        userId: 'u_publisher_001',
+        userId: userStore.userInfo.userId, // 使用真实的登录用户ID
         itemType: isLost.value ? 'LOST' : 'FOUND',
         title: formData.title,
-        description: formData.title, // 描述传给后端用于 AI 匹配
+        description: formData.title,
         locationText: formData.location,
         latitude: formData.latitude,
         longitude: formData.longitude,
         imageUrl: formData.image,
-        rewardPoints: formData.rewardPoints
+        rewardEnabled: isLost.value ? formData.rewardEnabled : false,
+        rewardPoints: isLost.value && formData.rewardEnabled ? formData.rewardPoints : 0
       },
-      success: (res) => {
+      success: async (res) => {
         if (res.data.code === 200) {
           if (res.data.match) {
             // 【核心】保存匹配到的物品数据
@@ -196,6 +264,8 @@ const getLocation = () => {
             // 如果没匹配到，延迟返回
             setTimeout(() => uni.navigateBack(), 1500);
           }
+        } else {
+          uni.showToast({ title: res.data.message || '发布失败', icon: 'none' })
         }
       },
       fail: () => {
