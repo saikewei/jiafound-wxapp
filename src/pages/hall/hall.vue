@@ -6,7 +6,7 @@
           :key="tab" 
           class="tab-item"
           :class="{ active: currentTab === tab }"
-          @tap="currentTab = tab"
+          @tap="handleTabChange(tab)"
         >
           {{ tab }}
         </view>
@@ -52,6 +52,10 @@
   
   const loadData = async () => {
     uni.showLoading({ title: '加载中...' })
+    // 计算发送给后端的类型参数
+  let typeParam = 'ALL'
+  if (currentTab.value === '寻物') typeParam = 'LOST'
+  if (currentTab.value === '招领') typeParam = 'FOUND'
     uni.request({
       url: 'http://localhost:8084/item/hall',
       method: 'GET',

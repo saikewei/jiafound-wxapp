@@ -54,11 +54,26 @@
   
   <script setup lang="ts">
   import { ref, reactive, onMounted } from 'vue'
-  
+  import { onLoad } from '@dcloudio/uni-app'
+
   const isLost = ref(true)
   const isSubmitting = ref(false)
   const userBalance = ref(100) // 模拟余额
-  
+  const pageTitle = ref('发布寻物')
+
+  // 接收首页传来的 type 参数
+onLoad((options: any) => {
+  if (options.type === 'FOUND') {
+    isLost.value = false
+    pageTitle.value = '发布招领'
+  } else {
+    isLost.value = true
+    pageTitle.value = '发布寻物'
+  }
+  // 动态修改小程序页面顶部标题
+  uni.setNavigationBarTitle({ title: pageTitle.value })
+})
+
   const formData = reactive({
     title: '',
     location: '',
