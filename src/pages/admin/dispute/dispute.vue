@@ -203,6 +203,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { http } from '@/utils/http'
 
 // 标签页
 const tabs = ref([
@@ -280,7 +281,7 @@ const selectTicket = async (item: DisputeListItem) => {
   try {
     uni.showLoading({ title: '加载详情...' })
     
-    const response = await uni.request({
+    const response = await http.request({
       url: `http://localhost:8082/api/v1/disputes/tickets/${item.ticketId}`,
       method: 'GET'
     })
@@ -367,7 +368,7 @@ const submitRuling = async () => {
           uni.showLoading({ title: '提交中...' })
           
           // 调用裁决接口
-          const response = await uni.request({
+          const response = await http.request({
             url: 'http://localhost:8082/api/v1/disputes/admin/disputes/ruling',
             method: 'POST',
             data: {
@@ -434,7 +435,7 @@ const loadDisputeList = async () => {
       requestData.status = statusParam
     }
     
-    const response = await uni.request({
+    const response = await http.request({
       url: 'http://localhost:8082/api/v1/disputes/admin/all',
       method: 'GET',
       data: requestData
@@ -469,21 +470,21 @@ const loadDisputeList = async () => {
 const updateTabCounts = async () => {
   try {
     // 获取待处理数量
-    const reviewingRes = await uni.request({
+    const reviewingRes = await http.request({
       url: 'http://localhost:8082/api/v1/disputes/admin/all',
       method: 'GET',
       data: { status: 'Reviewing', page: 1 }
     })
     
     // 获取已裁决数量
-    const closedRes = await uni.request({
+    const closedRes = await http.request({
       url: 'http://localhost:8082/api/v1/disputes/admin/all',
       method: 'GET',
       data: { status: 'Closed', page: 1 }
     })
     
     // 获取全部数量
-    const allRes = await uni.request({
+    const allRes = await http.request({
       url: 'http://localhost:8082/api/v1/disputes/admin/all',
       method: 'GET',
       data: { page: 1 }

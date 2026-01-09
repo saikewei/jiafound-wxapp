@@ -79,6 +79,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { http } from '@/utils/http'
 
 interface DisputeItem {
   claimId: string
@@ -121,7 +122,7 @@ const loadDisputeList = async () => {
   try {
     loading.value = true
     
-    const response = await uni.request({
+    const response = await http.request({
       url: 'http://localhost:8082/api/v1/disputes/my-disputes',
       method: 'GET',
       data: {

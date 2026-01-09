@@ -72,6 +72,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import { http } from '@/utils/http'
 
 interface FormData {
   claimId: string
@@ -194,7 +195,7 @@ const submitDispute = async () => {
     // 2. 调用申请接口
     uni.showLoading({ title: '提交中...' })
     
-    const response = await uni.request({
+    const response = await http.request({
       url: 'http://127.0.0.1:8082/api/v1/disputes/apply',
       method: 'PUT',
       data: {

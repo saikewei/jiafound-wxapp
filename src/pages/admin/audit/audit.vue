@@ -72,6 +72,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { http } from '@/utils/http'
 
 // 审核项数据类型
 interface AuditItem {
@@ -107,7 +108,7 @@ const loadAuditList = async (page: number = 1) => {
   try {
     loading.value = true
     
-    const response = await uni.request({
+    const response = await http.request({
       url: 'http://127.0.0.1:8082/api/v1/admin/audit/pending-list',
       method: 'GET',
       data: {
@@ -175,7 +176,7 @@ const submitAudit = async (itemID: string, decision: string) => {
   try {
     uni.showLoading({ title: '提交中...' })
     
-    const response = await uni.request({
+    const response = await http.request({
       url: 'http://127.0.0.1:8082/api/v1/admin/audit/action',
       method: 'PUT',
       data: {

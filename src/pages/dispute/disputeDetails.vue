@@ -158,6 +158,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
+import { http } from '@/utils/http'
 
 interface EvidenceDetail {
   imageUrls: string[]
@@ -226,7 +227,7 @@ const loadDisputeDetail = async () => {
   try {
     uni.showLoading({ title: '加载中...' })
     
-    const response = await uni.request({
+    const response = await http.request({
       url: `http://localhost:8082/api/v1/disputes/tickets/${ticketId.value}`,
       method: 'GET'
     })
@@ -409,7 +410,7 @@ const submitEvidence = async () => {
     // 提交证据
     uni.showLoading({ title: '提交中...' })
     
-    const response = await uni.request({
+    const response = await http.request({
       url: `http://127.0.0.1:8082/api/v1/disputes/${ticketId.value}/evidence`,
       method: 'POST',
       data: {
@@ -467,7 +468,7 @@ const revokeDispute = async () => {
   try {
     uni.showLoading({ title: '撤销中...' })
     
-    const response = await uni.request({
+    const response = await http.request({
       url: `http://127.0.0.1:8082/api/v1/disputes/tickets/${ticketId.value}/revoke`,
       method: 'PUT'
     })
