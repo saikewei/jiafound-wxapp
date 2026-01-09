@@ -7,7 +7,9 @@
           :key="index"
           @tap="goDetail(item.itemID)"
         >
-          <image class="item-img" :src="item.images[0]" mode="aspectFill" />
+          <image class="item-img" 
+        :src="item.images && item.images.length > 0 ? item.images[0] : '/static/no-img.png'" 
+        mode="aspectFill" />
           <view class="item-info">
             <view class="info-top">
               <text class="item-name">{{ item.title }}</text>
@@ -41,33 +43,34 @@
     loadData(mode)
   })
   
-  const loadData = (mode: string) => {
-    // 这里调用您提供的 /item/hall 接口
-    // 模拟数据结构
-    dataList.value = [
-      {
-        itemID: 'ITEM_001',
-        type: 'LOST',
-        title: '黑色遮阳伞',
-        location: '通嘉楼 3 楼',
-        publishTime: '2025-12-30 10:00',
-        images: ['https://via.placeholder.com/150']
-      },
-      {
-        itemID: 'ITEM_002',
-        type: 'FOUND',
-        title: '同济学生卡',
-        location: '食堂二楼',
-        publishTime: '15分钟前',
-        images: ['https://via.placeholder.com/150']
+
+// 修改 list.vue 中的 loadData
+const loadData = (mode: string) => {
+  let url = 'http://localhost:8084/item/hall';
+  let header = {};
+
+  if (mode === 'mine') {
+    url = 'http://localhost:8084/item/my-list';
+    // 模拟传入用户ID，实际项目中这里传 Token
+    header = { 'X-User-Id': 'u_publisher_001' }; 
+  }
+
+  uni.request({
+    url: url,
+    header: header,
+    success: (res: any) => {
+      if (res.data.code === 200) {
+        // 如果是个人列表，取 res.data.data.list；大厅则直接取 res.data.data
+        dataList.value = mode === 'mine' ? res.data.data.list : res.data.data;
       }
-    ]
-  }
-  
-  const goDetail = (id: string) => {
-    uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
-  }
-  </script>
+    }
+  });
+}
+
+const goDetail = (id: string) => {
+  uni.navigateTo({ url: `/pages/detail/detail?id=${id}` })
+}
+</script>
   
   <style lang="scss" scoped>
   .list-container {

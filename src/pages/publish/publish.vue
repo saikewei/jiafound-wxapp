@@ -38,6 +38,17 @@
       </view>
   
       <button class="submit-btn" :loading="isSubmitting" @tap="handleSubmit">立即发布</button>
+
+      <view v-if="matchResults && matchResults.length > 0" class="match-list">
+        <view class="match-title">匹配的类似物品：</view>
+        <view v-for="(item, index) in matchResults" :key="index" class="match-card">
+          <image :src="item.imageUrl || item.image" mode="aspectFill" class="match-img" />
+          <view class="match-info">
+            <text class="match-name">{{ item.title || item.description }}</text>
+            <text class="match-time">上传时间：{{ item.publishTime || '刚刚' }}</text>
+          </view>
+        </view>
+      </view>
     </view>
   </template>
   
@@ -65,54 +76,106 @@
   })
   
   const saveDraft = () => uni.setStorageSync('publish_draft', formData)
-  
+
   const chooseImage = () => {
     uni.chooseImage({
       count: 1,
       success: (res) => {
-        formData.image = res.tempFilePaths[0]
-        saveDraft()
+        const tempFilePath = res.tempFilePaths[0];
+        formData.image = tempFilePath;
+        saveDraft();
+
+        // --- 新增 AI 识图逻辑 ---
+        uni.showLoading({ title: 'AI 正在分析图片...' });
+        
+        uni.uploadFile({
+          url: 'http://localhost:8084/item/analyze-image', // 后端识图接口
+          filePath: tempFilePath,
+          name: 'file',
+          success: (uploadRes) => {
+            const data = JSON.parse(uploadRes.data);
+            if (data.code === 200 && data.description) {
+              // 自动填充到物品名称（用户可微调）
+              formData.title = data.description;
+              uni.showToast({ title: 'AI 已生成描述', icon: 'none' });
+              saveDraft();
+            }
+          },
+          fail: () => {
+            uni.showToast({ title: 'AI 识图服务不可用', icon: 'none' });
+          },
+          complete: () => {
+            uni.hideLoading();
+          }
+        });
+        // -----------------------
       }
-    })
+    });
   }
-  
-  const handleSubmit = async () => {
-    // 1. 校验
-    if (!formData.title || !formData.image) {
-      return uni.showToast({ title: '请完善图片和名称', icon: 'none' })
-    }
-  
-    // 2. 余额检查
-    if (formData.rewardEnabled && formData.rewardPoints > userBalance.value) {
-      return uni.showModal({
-        title: '余额不足',
-        content: '您的余额不足以支付悬赏，请充值或修改金额',
-        confirmText: '去充值'
-      })
-    }
-  
-    isSubmitting.value = true
-    uni.showLoading({ title: 'AI 匹配中...' })
-  
-    try {
-      // 模拟接口请求
-      // const res = await request('/item/publish', 'POST', formData);
-      
-      // 模拟匹配成功情况
-      setTimeout(() => {
-        uni.hideLoading()
-        isSubmitting.value = false
+
+  //获取地理位置
+
+const getLocation = () => {
+  uni.chooseLocation({
+    success: (res) => {
+      formData.location = res.name || res.address;
+      formData.latitude = res.latitude;
+      formData.longitude = res.longitude;
+      saveDraft(); // 保存到草稿
+    },
+    fail: (err) => {
+      if (err.errMsg.includes('auth deny')) {
         uni.showModal({
-          title: '发布成功',
-          content: 'AI 以为您找到可能匹配的物品，快去看看吧！',
-          success: () => uni.redirectTo({ url: '/pages/detail/detail' })
-        })
-        uni.removeStorageSync('publish_draft')
-      }, 1500)
-    } catch (e) {
-      uni.showToast({ title: '网络异常，已自动保存草稿', icon: 'none' })
-      isSubmitting.value = false
+          title: '授权提示',
+          content: '需要位置权限才能选择地点，请在设置中开启',
+          success: (res) => {
+            if (res.confirm) uni.openSetting();
+          }
+        });
+      }
     }
+  });
+}
+
+  // 失物招领与寻物启事
+  
+  const matchResults = ref([]); // 定义响应式数组
+
+  const handleSubmit = async () => {
+    // ... 校验代码 ...
+    isSubmitting.value = true;
+    
+    uni.request({
+      url: 'http://localhost:8084/item/publish', // 确保端口是 8084
+      method: 'POST',
+      data: {
+        userId: 'u_publisher_001',
+        itemType: isLost.value ? 'LOST' : 'FOUND',
+        title: formData.title,
+        description: formData.title, // 描述传给后端用于 AI 匹配
+        locationText: formData.location,
+        latitude: formData.latitude,
+        longitude: formData.longitude,
+        imageUrl: formData.image,
+        rewardPoints: formData.rewardPoints
+      },
+      success: (res) => {
+        if (res.data.code === 200) {
+          uni.showToast({ title: '发布成功', icon: 'success' });
+          // 将匹配结果显示在页面上，而不是跳转
+          if (res.data.match && res.data.data) {
+            // 如果后端返回的是单个对象，转为数组
+            matchResults.value = Array.isArray(res.data.data) ? res.data.data : [res.data.data];
+          }
+        }
+      },
+      fail: () => {
+        uni.showToast({ title: '连接后端失败', icon: 'none' });
+      },
+      complete: () => {
+        isSubmitting.value = false;
+      }
+    });
   }
   </script>
   

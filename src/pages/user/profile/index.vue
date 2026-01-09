@@ -146,6 +146,11 @@ onMounted(async () => {
   }
 })
 
+// 将“我的发布”跳转逻辑修改为：
+const handleMyPost = () => {
+  uni.navigateTo({ url: '/pages/list/list?mode=mine' })
+}
+
 /**
  * 编辑个人资料
  */
@@ -188,17 +193,27 @@ const handleWithdraw = () => {
   })
 }
 
+// 修改 handleNavigation
+const handleNavigation = (url: string) => {
+  if (url.includes('my-post')) {
+    // 统一跳转到 list 页面，并告知是查询个人数据
+    uni.navigateTo({ url: '/pages/list/list?mode=mine' })
+  } else {
+    uni.navigateTo({ url })
+  }
+}
+
 /**
  * 通用页面跳转
  */
-const handleNavigation = (url: string) => {
-  if (!userStore.isLoggedIn) {
-    handleLogin()
-    return
-  }
+// const handleNavigation = (url: string) => {
+//   if (!userStore.isLoggedIn) {
+//     handleLogin()
+//     return
+//   }
 
-  uni.navigateTo({ url })
-}
+//   uni.navigateTo({ url })
+// }
 
 /**
  * 退出登录

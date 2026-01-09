@@ -2,14 +2,10 @@
 	"easycom": {
 		"autoscan": true,
 		"custom": {
-			// uni-ui 规则如下配置
 			"^uni-(.*)": "@dcloudio/uni-ui/lib/uni-$1/uni-$1.vue"
 		}
 	},
 	"pages": [
-		// ========== 主要页面 ==========
-		
-		// 首页
 		{
 			"path": "pages/index/index",
 			"style": {
@@ -23,8 +19,6 @@
 			"navigationBarTitleText": "拾遗广场"
 			}
 		},
-		
-		// 个人中心
 		{
 			"path": "pages/user/profile/index",
 			"style": {
@@ -33,10 +27,6 @@
 				"enablePullDownRefresh": true
 			}
 		},
-		
-		// ========== 用户与激励子系统 ==========
-		
-		// 登录页
 		{
 			"path": "pages/user/login/index",
 			"style": {
@@ -46,8 +36,6 @@
 				"navigationStyle": "default"
 			}
 		},
-		
-		// 实名认证
 		{
 			"path": "pages/user/auth/index",
 			"style": {
@@ -56,8 +44,6 @@
 				"navigationBarTextStyle": "black"
 			}
 		},
-		
-		// 编辑资料
 		{
 			"path": "pages/user/profile/edit",
 			"style": {
@@ -66,8 +52,6 @@
 				"navigationBarTextStyle": "black"
 			}
 		},
-		
-		// 我的钱包
 		{
 			"path": "pages/user/wallet/index",
 			"style": {
@@ -76,8 +60,6 @@
 				"navigationBarTextStyle": "black"
 			}
 		},
-		
-		// 流水明细
 		{
 			"path": "pages/user/wallet/logs",
 			"style": {
@@ -94,7 +76,7 @@
 		{ "path": "pages/list/list" }
 	],
 	
-	// TabBar 配置
+
 	"tabBar": {
 		"color": "#7A7E83",
 		"selectedColor": "#007aff",

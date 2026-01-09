@@ -54,7 +54,16 @@
         "setting" : {
             "urlCheck" : false
         },
-        "usingComponents" : true
+        "usingComponents" : true,
+        "permission": {
+        "scope.userLocation": {
+            "desc": "您的位置信息将用于展示周边物品并方便他人捡拾"
+        }
+        },
+        "requiredPrivateInfos": [
+            "getLocation",
+            "chooseLocation"
+        ]
     },
     "mp-alipay" : {
         "usingComponents" : true

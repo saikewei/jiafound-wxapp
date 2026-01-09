@@ -14,7 +14,9 @@
   
       <scroll-view scroll-y class="list-scroll" @scrolltolower="loadMore">
         <view class="item-card" v-for="item in displayList" :key="item.itemID">
-          <image :src="item.images[0]" mode="aspectFill" class="item-cover" />
+          <image :src="item.images && item.images.length > 0 ? item.images[0] : '/static/no-img.png'" 
+          mode="aspectFill" 
+          class="item-cover" />
           <view class="item-content">
             <view class="item-title">{{ item.title }}</view>
             <view class="item-info">
@@ -32,22 +34,44 @@
   </template>
   
   <script setup lang="ts">
-  import { ref, computed } from 'vue'
+  import { ref, computed, onMounted } from 'vue'
   
   const currentTab = ref('全部')
-  const allItems = ref([
-    // 模拟从 /item/hall 获取的数据
-    { itemID: '1', title: '丢失黑色耳机', type: 'LOST', location: '图书馆三楼', publishTime: '10:00', images: ['https://via.placeholder.com/150'], rewardPoints: 100 },
-    { itemID: '2', title: '捡到学生证', type: 'FOUND', location: '食堂二楼', publishTime: '11:30', images: ['https://via.placeholder.com/150'], rewardPoints: 0 }
-  ])
+  const allItems = ref<any[]>([]) // 初始化为空数组
   
-  const displayList = computed(() => {
-    if (currentTab.value === '全部') return allItems.value
-    const typeMap = { '寻物': 'LOST', '招领': 'FOUND' }
-    return allItems.value.filter(item => item.type === typeMap[currentTab.value])
+  // 1. 页面挂载时调用加载
+  onMounted(() => {
+    loadData()
   })
   
-  const loadMore = () => { /* 触发分页加载 /item/hall?page=... */ }
+  // 2. 监听标签切换，自动重新加载真实数据
+  const handleTabChange = (tab: string) => {
+    currentTab.value = tab
+    loadData()
+  }
+  
+  const loadData = async () => {
+    uni.showLoading({ title: '加载中...' })
+    uni.request({
+      url: 'http://localhost:8084/item/hall',
+      method: 'GET',
+      // 将前端 Tab 翻译为后端需要的 LOST/FOUND 参数
+      data: { 
+        type: currentTab.value === '全部' ? 'ALL' : (currentTab.value === '寻物' ? 'LOST' : 'FOUND'),
+        page: 1,
+        pageSize: 50
+      },
+      success: (res: any) => {
+        if (res.data.code === 200) {
+          // 后端接口返回的是 Result<List<ItemListItemDTO>>
+          allItems.value = res.data.data;
+        }
+      },
+      complete: () => uni.hideLoading()
+    });
+  }
+  
+  const displayList = computed(() => allItems.value) // 后端已根据 type 过滤，此处直接返回
   </script>
   
   <style lang="scss" scoped>
