@@ -13,7 +13,7 @@
       </view>
   
       <scroll-view scroll-y class="list-scroll" @scrolltolower="loadMore">
-        <view class="item-card" v-for="item in displayList" :key="item.itemID">
+        <view class="item-card" v-for="item in displayList" :key="item.itemID" @tap="goDetail(item.itemID)"> 
           <image :src="item.images && item.images.length > 0 ? item.images[0] : '/static/no-img.png'" 
           mode="aspectFill" 
           class="item-cover" />
@@ -49,6 +49,18 @@
     currentTab.value = tab
     loadData()
   }
+
+const goDetail = (itemID: string) => {
+  console.log('正在跳转，物品ID为:', itemID);
+  uni.navigateTo({
+    url: `/pages/item/detail?itemID=${itemID}`,
+    fail: (err) => { console.error('跳转失败原因:', err) }
+  });
+}
+
+const loadMore = () => {
+  // 预留：下拉触底分页加载
+}
   
   const loadData = async () => {
     uni.showLoading({ title: '加载中...' })

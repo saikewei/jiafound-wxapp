@@ -73,6 +73,7 @@
 import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import { http } from '@/utils/http'
+import { useUserStore } from '@/stores/user'
 
 interface FormData {
   claimId: string
@@ -97,7 +98,7 @@ onLoad((options: any) => {
   }
 
   // 测试代码
-   formData.value.claimId = '0ead8694eb0511f0850f7ced8dfee038'
+   // formData.value.claimId = '0ead8694eb0511f0850f7ced8dfee038'
 })
 
 // 选择图片
@@ -135,9 +136,14 @@ const uploadImages = async (): Promise<string[]> => {
     // 逐个上传图片
     for (let i = 0; i < imageList.value.length; i++) {
       const filePath = imageList.value[i]
+      const userStore = useUserStore()
+      const token = `Bearer ${userStore.token}` || ''
       
       const uploadResult = await uni.uploadFile({
         url: 'http://127.0.0.1:8082/api/v1/disputes/upload-images',
+        header: {
+          'Authorization': token
+        },
         filePath: filePath,
         name: 'files',
         formData: {}
@@ -145,9 +151,12 @@ const uploadImages = async (): Promise<string[]> => {
 
       console.log('uploadResult:', uploadResult)
       const response = JSON.parse(uploadResult.data as string)
+      console.log('upload response:', response.code === 200)
+      console.log('upload response data:', response.data)
       
       if (response.code === 200 && response.data) {
         // 假设后端返回的是 List<String>,取第一个
+        console.log('uploaded image url:', response.data[0])
         uploadedUrls.push(response.data[0])
       } else {
         throw new Error(response.msg || '上传失败')
@@ -210,7 +219,8 @@ const submitDispute = async () => {
 
     uni.hideLoading()
     
-    const resData = response.data as any
+    console.log('submit dispute response:', response)
+    const resData = response as any
 
     if (resData.code === 200) {
       uni.showModal({

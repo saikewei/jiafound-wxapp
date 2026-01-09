@@ -41,9 +41,9 @@
 
       <view v-if="matchResults && matchResults.length > 0" class="match-list">
         <view class="match-title">匹配的类似物品：</view>
-        <view v-for="(item, index) in matchResults" :key="index" class="match-card">
+        <view v-for="(item, index) in matchResults" :key="index" class="match-card" @tap="goDetail(item.itemId)">
           <image :src="item.imageUrl || item.image" mode="aspectFill" class="match-img" />
-          <view class="match-info">
+          <view class="match-info">item
             <text class="match-name">{{ item.title || item.description }}</text>
             <text class="match-time">上传时间：{{ item.publishTime || '刚刚' }}</text>
           </view>
@@ -89,6 +89,15 @@ onLoad((options: any) => {
     rewardEnabled: false,
     rewardPoints: 0
   })
+
+  const goDetail = (itemID: string) => {
+    console.log(matchResults.value);
+  console.log('正在跳转，物品ID为:', itemID);
+  uni.navigateTo({
+    url: `/pages/item/detail?itemID=${itemID}`,
+    fail: (err) => { console.error('跳转失败原因:', err) }
+  });
+}
 
   // 开关悬赏的回调
   const toggleReward = (e: any) => {
