@@ -43,11 +43,16 @@
         <view class="match-title">匹配的类似物品：</view>
         <view v-for="(item, index) in matchResults" :key="index" class="match-card" @tap="goDetail(item.itemId)">
           <image :src="item.imageUrl || item.image" mode="aspectFill" class="match-img" />
-          <view class="match-info">item
+          <view class="match-info">
             <text class="match-name">{{ item.title || item.description }}</text>
             <text class="match-time">上传时间：{{ item.publishTime || '刚刚' }}</text>
+            <text class="match-location" v-if="item.locationText">📍 {{ item.locationText }}</text>
           </view>
+          <view class="arrow">›</view>
         </view>
+      </view>
+      <view v-else class="no-matches">
+        <text>暂无匹配物品</text>
       </view>
     </view>
   </template>
@@ -306,5 +311,88 @@ const getLocation = () => {
   .balance { font-size: 22rpx; color: #ff9800; margin-top: 10rpx; display: block; }
   .submit-btn {
     background: #007aff; color: #fff; border-radius: 50rpx; font-size: 32rpx; height: 90rpx; line-height: 90rpx;
+  }
+  .no-matches {
+    margin-top: 40rpx; text-align: center; color: #999; font-size: 24rpx;
+  }
+  
+  .match-list {
+    margin-top: 60rpx;
+    padding-top: 40rpx;
+    border-top: 1rpx solid #eee;
+  }
+  
+  .match-title {
+    font-size: 30rpx;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 30rpx;
+    padding-left: 10rpx;
+    border-left: 6rpx solid #007aff;
+  }
+  
+  .match-card {
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 16rpx;
+    padding: 24rpx;
+    margin-bottom: 24rpx;
+    box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+    transition: all 0.3s;
+    position: relative;
+    
+    &:active {
+      transform: scale(0.98);
+      box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.12);
+    }
+  }
+  
+  .match-img {
+    width: 120rpx;
+    height: 120rpx;
+    border-radius: 12rpx;
+    flex-shrink: 0;
+    background: #f5f5f5;
+  }
+  
+  .match-info {
+    flex: 1;
+    margin-left: 24rpx;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+  }
+  
+  .match-name {
+    font-size: 28rpx;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 12rpx;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .match-time {
+    font-size: 24rpx;
+    color: #999;
+    margin-bottom: 8rpx;
+  }
+  
+  .match-location {
+    font-size: 24rpx;
+    color: #666;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .arrow {
+    font-size: 48rpx;
+    color: #ccc;
+    margin-left: 10rpx;
+    flex-shrink: 0;
   }
   </style>
